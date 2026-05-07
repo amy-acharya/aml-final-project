@@ -174,7 +174,7 @@
         }
 
         .article-figure.small {
-            max-width: 650px;
+            max-width: 450px;
             margin-left: auto;
             margin-right: auto;
         }
@@ -184,6 +184,22 @@
             height: auto;
             display: block;
             background: #ffffff;
+        }
+
+        .article-figure.image-small img {
+            width: 50%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .article-figure.image-medium img {
+            width: 78%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .article-figure.image-wide img {
+            width: 100%;
         }
 
         section {
@@ -199,7 +215,7 @@
         }
 
         p {
-            font-size: 19px;
+            font-size: 17px;
             line-height: 1.65;
             margin: 0 0 22px;
         }
@@ -252,79 +268,303 @@
 <body>
     <nav class="sidebar">
         <div class="sidebar-title">Sections</div>
-        <a href="#title" class="active">Title</a>
-        <a href="#motivation">Motivation</a>
-        <a href="#baseline">Baseline</a>
-        <a href="#gnn">GNN Models</a>
-        <a href="#results">Results</a>
+        <a href="#hypothesis" class="active">Hypothesis</a>
+        <a href="#existing-approaches">Existing Approaches</a>
+        <a href="#dataset">Dataset &amp; Preprocessing</a>
+        <a href="#xgboost">XGBoost Baseline</a>
+        <a href="#gnn">GNNs</a>
+        <a href="#discussion">Discussion</a>
+        <a href="#references">References</a>
     </nav>
 
     <div class="page">
         <main>
-            <header id="title" class="hero section">
-                <div class="eyebrow">Applied Machine Learning Final Project</div>
-
-                <h1>Fold or Fail: Predicting Protein Stability Changes from Mutations</h1>
+            <header id="hypothesis" class="hero section">
+        
+                <h1>Fold or Fail</h1>
+                <h2>Predicting Protein Stability Changes from Mutations</h2>
 
                 <p class="subtitle">
-                    We test whether graph neural networks on residue contact graphs improve prediction of
-                    mutation-induced protein stability changes beyond strong condition-aware tabular baselines.
+                    We test whether graph neural networks on residue contact graphs improve prediction of mutation-induced
+                    protein stability changes beyond strong condition-aware tabular baselines.
                 </p>
-
+        
                 <div class="metadata">
                     <div>
                         <div class="metadata-label">Authors</div>
-                        <div>Amrita Acharya<br>Zala Bhan<br>Manuel Gonzalez<br>Zoya Khan</div>
+                        <div>Amrita Acharya<br>Zoya Khan<br>Zala Bhan<br>Manuel Gonzalez</div>
                     </div>
-
+                
                     <div>
                         <div class="metadata-label">Course</div>
                         <div>Applied Machine Learning</div>
                     </div>
-
+                
                     <div>
-                        <div class="metadata-label">Task</div>
-                        <div>Supervised regression</div>
+                        <div class="metadata-label">Question</div>
+                        <div>Can graph neural networks learn what sequence alone cannot?</div>
                     </div>
-
+                
                     <div>
-                        <div class="metadata-label">Target</div>
-                        <div>ΔΔG<br>kcal/mol</div>
+                        <div class="metadata-label">Source code</div>
+                        <div>
+                            <a href="https://github.com/amy-acharya/aml-final-project" target="_blank" rel="noopener noreferrer">
+                                GitHub repo
+                            </a>
+                        </div>
                     </div>
                 </div>
+        
+                <h2>Hypothesis</h2>
+                <p>
+                    We hypothesize that a Graph Neural Network operating on residue contact graphs will outperform a sequence-based baseline
+                    on protein-level ΔΔG prediction. Message-passing over spatial contacts allows the model to aggregate information from
+                    the full structural neighborhood of a mutation site (context that a flat feature vector cannot represent). We argue that
+                    this missing structural context is the primary bottleneck for generalization to unseen proteins.
+                </p>
             </header>
-
-            <section id="motivation" class="section">
-                <h2>Why protein stability prediction is hard</h2>
+        
+            <section id="existing-approaches" class="section">
+                <h2>Existing Approaches</h2>
+            
                 <p>
-                    A single amino acid substitution can change how a protein folds, but the effect depends on the
-                    mutation, the surrounding residue environment, and the broader structural context.
+                    Predicting how a mutation affects protein stability has been approached in three ways: energy-based physical
+                    models, supervised learning on flat sequence features, and most recently, structure-aware deep learning.
+                </p>
+            
+                <p>
+                    Early work established that structural context matters for stability prediction, even when models did not use
+                    structure directly. Cao et al.
+                    <a href="https://pubs.acs.org/doi/10.1021/acs.jcim.8b00697" target="_blank" rel="noopener noreferrer">(2019)</a>
+                    introduced DeepDDG, a neural network architecture trained on more than 5,700 manually curated mutations, finding
+                    that solvent accessible surface area (a measure of how buried a residue is within the folded structure) was the
+                    single most predictive feature. Nisthal et al.
+                    <a href="https://doi.org/10.1073/pnas.1903888116" target="_blank" rel="noopener noreferrer">(2019)</a>
+                    confirmed this experimentally using a comprehensive single-mutant database for Gβ1, finding that mutational
+                    sensitivity is governed primarily by residue burial. Prediction algorithms consistently performed better on
+                    surface positions than on core positions (precisely where the contact network is densest). Taken together, these
+                    studies establish that the identity of the substituted amino acids matters less than where in the folded
+                    structure the swap occurs, which flat feature vectors cannot represent.
+                </p>
+            
+                <p>
+                    More recent methods have tried to incorporate that structural context directly. RaSP
+                    <a href="https://doi.org/10.7554/eLife.82593" target="_blank" rel="noopener noreferrer">(Blaabjerg et al.,
+                        2023)</a>
+                    uses a self-supervised 3D convolutional network to encode local atomic environments, then trains a supervised
+                    stability predictor on top of those representations. Stability Oracle
+                    <a href="https://doi.org/10.1038/s41467-024-49780-2" target="_blank" rel="noopener noreferrer">(Diaz et al.,
+                        2024)</a>
+                    is a structure-based graph-transformer that incorporates pairwise residue distances and models mutations from a
+                    single starting structure, but its architecture mixes structural and sequence signals in ways that are difficult
+                    to disentangle. Both outperform flat-feature baselines, confirming that structural information matters. But
+                    neither study isolates whether graph topology itself (independent of richer node features) is responsible for
+                    the gain. This is the question our project was designed to answer.
+                </p>
+            
+                <p>
+                    Comparing across these methods is further complicated by dataset overlap. Pancotti et al.
+                    <a href="https://academic.oup.com/bib/article/23/2/bbab555/6502552" target="_blank" rel="noopener noreferrer">(2022)</a>
+                    showed that published benchmarks in this space are difficult to compare cleanly: many tools were trained or
+                    optimized on overlapping datasets, and performance can shift substantially when direct and reverse mutations are
+                    evaluated separately. In our own exploratory baseline, we observed this directly, motivating our choice to
+                    evaluate on a strict protein-level split, where entire proteins are held out, rather than a per-mutation split
+                    that allows the model to see other mutations from the same protein during training.
+                </p>
+            
+                <p>
+                    Our approach differs from RaSP and Stability Oracle in the question being asked. We construct explicit residue
+                    contact graphs and train a GNN whose structural information is encoded in the graph edges, constructed from real
+                    PDB or AlphaFold structures where available. This lets us directly ask if graph topology, or the pattern of
+                    spatial contacts around a mutation site, carries a predictive signal beyond what richer node-level features
+                    alone can provide. Our ablations address this question by systematically varying what structural information the
+                    GNN receives: comparing architecture variants that differ in readout strategy and stratifying results by residue
+                    burial to isolate where graph topology adds the most signal.
                 </p>
             </section>
+        
+            <section id="dataset" class="section">
+                <h2>Dataset &amp; Preprocessing</h2>
 
-            <section id="baseline" class="section">
-                <h2>Flat mutation features as a baseline</h2>
+                <figure class="article-figure image-small">
+                    <img src="assets/figures/dataset_train:test:val.svg"
+                        alt="Data representation and protein-level train validation test split">
+                
+                    <figcaption class="article-caption">
+                        <span class="article-caption-title">
+                            <span class="article-caption-label">Figure 1.</span>
+                            Data representation and model split.
+                        </span>
+                
+                        <span class="article-caption-text">
+                            Each row in our feature matrix represents a single (protein, point mutation) pair; columns encode
+                            physicochemical properties of the substitution; the label vector contains experimentally measured ΔΔG values
+                            from ProTherm. For the XGBoost prototype, features include changes in hydrophobicity, net charge, and
+                            molecular weight, alongside one-hot encodings of wild-type and mutant amino acid identity. For the GNN
+                            pipeline, each example is represented as a paired wild-type and mutant residue contact graph, with
+                            34-dimensional node features and 11-dimensional edge features encoding Cα distances and edge type. All
+                            splits use a 60/20/20 ratio by protein group, ensuring no protein seen during training appears in validation
+                            or test.
+                        </span>
+                    </figcaption>
+                </figure>
+
                 <p>
-                    We first tested tabular models using engineered mutation and condition features. These baselines
-                    define how much signal can be captured without explicit graph message passing.
+                    filler text
                 </p>
-            </section>
 
+                <figure class="article-figure image-medium">
+                    <img src="assets/figures/dataset_exploration.svg" alt="Exploratory analysis of the ProTherm mutation dataset">
+                
+                    <figcaption class="article-caption">
+                        <span class="article-caption-title">
+                            <span class="article-caption-label">Figure 2.</span>
+                            Exploratory analysis of the ProTherm mutation dataset (UniProt-annotated subset, n=496).
+                        </span>
+                
+                        <span class="article-caption-text">
+                            (A) Most mutations in the dataset are stabilizing (ΔΔG &lt; 0), with a long tail of destabilizing outliers.
+                            (B) Mean ΔΔG varies considerably across substitution types, but no simple pattern emerges. Even swaps
+                            involving the same wild-type residue can stabilize or destabilize the protein depending on structural
+                            context. (C) Net charge change alone is a poor predictor, with heavily overlapping ΔΔG distributions across
+                            all charge-shift categories. (D) All three physicochemical features correlate weakly with ΔΔG (r &lt; 0.2),
+                            confirming that stability cannot be captured by any single feature in isolation and motivating the use of
+                            more expressive models.
+                        </span>
+                    </figcaption>
+                </figure>
+
+
+            </section>
+        
+            <section id="xgboost" class="section">
+                <h2>XGBoost Baseline</h2>
+
+                <figure class="article-figure">
+                    <img src="assets/figures/xgboost_architecture.svg"
+                        alt="XGBoost architecture as a sequence-based baseline for protein stability prediction">
+                
+                    <figcaption class="article-caption">
+                        <span class="article-caption-title">
+                            <span class="article-caption-label">Figure 3.</span>
+                            XGBoost as a sequence-based baseline.
+                        </span>
+                
+                        <span class="article-caption-text">
+                            XGBoost builds predictions by sequentially fitting shallow decision trees, where each tree corrects the
+                            residual errors of the previous one. The final prediction is a weighted sum across all K trees. Each input
+                            is a flat physicochemical feature vector encoding what changed in the substitution, but not where in the
+                            protein's three-dimensional structure it occurred.
+                        </span>
+                    </figcaption>
+                </figure>
+
+
+                <p>
+                    add text
+                </p>
+
+                <figure class="article-figure image-small">
+                    <img src="assets/figures/table_1.png" alt="XGBoost hyperparameter search table">
+                
+                    <figcaption class="article-caption">
+                        <span class="article-caption-title">
+                            <span class="article-caption-label">Table 1.</span>
+                            Hyperparameter Search (Validation Set).
+                        </span>
+                
+                        <span class="article-caption-text">
+                            Hyperparameter grid search on the per-mutation validation set. Max depth 6 and learning rate 0.05 (bold)
+                            resulted in the best validation Pearson r of 0.431 and were applied to both split strategies for final
+                            evaluation.
+                        </span>
+                    </figcaption>
+                </figure>
+
+
+                <figure class="article-figure image-wide">
+                    <img src="assets/figures/xgb_comparison.svg"
+                        alt="XGBoost baseline training curves and predicted versus true test performance">
+                
+                    <figcaption class="article-caption">
+                        <span class="article-caption-title">
+                            <span class="article-caption-label">Figure 4.</span>
+                            XGBoost baseline training dynamics and test performance.
+                        </span>
+                
+                        <span class="article-caption-text">
+                            (Left to right) Per-mutation training curve: train and validation RMSE converge cleanly, with early stopping
+                            at round 29. Protein-level training curve: validation RMSE plateaus immediately near 3.2 kcal/mol while
+                            training RMSE continues to fall, with early stopping at round 36. The model is memorizing protein-specific
+                            patterns, not learning transferable rules. Predicted vs. true ΔΔG on the test set for per-mutation (r=0.397)
+                            and protein-level (r=0.199) splits respectively; the protein-level predictions collapse toward the mean,
+                            reflecting the model's failure to generalize.
+                        </span>
+                    </figcaption>
+                </figure>
+
+                <figure class="article-figure image-small">
+                    <img src="assets/figures/table_2.png"
+                        alt="Final XGBoost evaluation table under per-mutation and protein-level splits">
+                
+                    <figcaption class="article-caption">
+                        <span class="article-caption-title">
+                            <span class="article-caption-label">Table 2.</span>
+                            Final XGBoost Evaluation (Best Config: depth=6, lr=0.05).
+                        </span>
+                
+                        <span class="article-caption-text">
+                            Final XGBoost test performance under two splitting strategies. Per-mutation splits distribute each protein's
+                            mutations across train, validation, and test; protein-level splits hold out entire proteins. The gap between
+                            the two reveals how much per-mutation performance is inflated by the model seeing related mutations from the
+                            same proteins during training.
+                        </span>
+                    </figcaption>
+                </figure>
+
+            </section>
+        
             <section id="gnn" class="section">
-                <h2>Residue contact graphs and GNNs</h2>
+                <h2>GNNs</h2>
+                <figure class="article-figure image-wide">
+                    <img src="assets/figures/gnn_architecture.svg"
+                        alt="GNN architecture for predicting protein stability change from residue contact graphs">
+                
+                    <figcaption class="article-caption">
+                        <span class="article-caption-title">
+                            <span class="article-caption-label">Figure 5.</span>
+                            GNN architecture for ΔΔG prediction.
+                        </span>
+                
+                        <span class="article-caption-text">
+                            The wild-type protein structure is converted into a residue contact graph and perturbed at the mutation site
+                            to produce a mutant graph. Both graphs are encoded by a shared GINEConv encoder (2 message-passing layers,
+                            hidden dimension 48, dropout 0.20) using 34-dimensional node features and 11-dimensional edge features (8
+                            RBF-encoded Cα distances + 3 binary edge-type flags). The embedding at the mutation site is extracted from
+                            each graph (not pooled globally) and their difference ΔZ = z<sub>WT</sub> − z<sub>MUT</sub> is fed into a
+                            2-layer MLP to regress the predicted ΔΔG. Four model variants are tested by varying what additional
+                            information the MLP receives: mutation-site delta only (V1), plus experimental condition features pH and
+                            temperature (V2), plus global graph embedding (V3), and structure-backed examples only with no condition
+                            features (V4). Protein ribbon structure from <a href="https://doi.org/10.1038/s41586-021-03819-2"
+                                target="_blank" rel="noopener noreferrer">Jumper et al., 2021</a>.
+                        </span>
+                    </figcaption>
+                </figure>
+                
                 <p>
-                    We then represented proteins as residue contact graphs and trained GNN variants that differ in local
-                    readout, global pooling, and condition-feature integration.
+                    text
                 </p>
 
-                <figure class="article-figure medium">
+                <figure class="article-figure image-medium">
                     <img src="assets/figures/table_3_modelcomparison.png"
-                        alt="Test set performance comparison across tabular and GNN models">
+                        alt="Test set performance table across tabular and GNN models on the protein-group split">
+                
                     <figcaption class="article-caption">
                         <span class="article-caption-title">
                             <span class="article-caption-label">Table 3.</span>
                             Test set performance across all models on the protein-group split (n=503).
                         </span>
+                
                         <span class="article-caption-text">
                             Bold indicates best RMSE and Pearson r. Tabular models operate on flat mutation-level features; GNN models
                             operate on paired residue contact graphs. Condition-aware models include experimental pH and temperature as
@@ -333,13 +573,102 @@
                     </figcaption>
                 </figure>
 
-            </section>
+                <figure class="article-figure">
+                    <img src="assets/figures/gnn_main1_rmse_corr.svg"
+                        alt="Model comparison across tabular and GNN families on the protein-group test split">
+                
+                    <figcaption class="article-caption">
+                        <span class="article-caption-title">
+                            <span class="article-caption-label">Figure 6.</span>
+                            Model comparison across all families on the protein-group test split.
+                        </span>
+                
+                        <span class="article-caption-text">
+                            Left: test RMSE (kcal/mol), lower is better. Right: test Pearson r, higher is better. Colors indicate the
+                            model family: blue (tabular, mutation-only), light pink (tabular, condition-aware), salmon (available-graph
+                            GNN), red (structure-only GNN). The condition-aware tabular model achieves the lowest RMSE while the
+                            structure-only GNN achieves the highest Pearson r. This divergence is explained by systematic prediction
+                            shrinkage in the GNN.
+                        </span>
+                    </figcaption>
+                </figure>
 
-            <section id="results" class="section">
-                <h2>What we found</h2>
+                <figure class="article-figure image-medium">
+                    <img src="assets/figures/gnn_main2_prediction_behavior.svg"
+                        alt="Prediction behavior of the best tabular model and best available-graph GNN on the protein-group test split">
+                
+                    <figcaption class="article-caption">
+                        <span class="article-caption-title">
+                            <span class="article-caption-label">Figure 7.</span>
+                            Prediction behavior of the best tabular model (HistGradientBoosting condition-aware, left) and the best
+                            available-graph GNN (V2, right).
+                        </span>
+                
+                        <span class="article-caption-text">
+                            Top: predicted vs. true ΔΔG. Bottom: residuals vs. true ΔΔG. Both models systematically under-predict large
+                            destabilizing mutations (negative residual slope of -0.77 and -0.85 respectively). The GNN's prediction
+                            spread ratio (0.34) is substantially narrower than the tabular model's (0.46), compressing predictions
+                            toward the mean and inflating RMSE relative to Pearson r.
+                        </span>
+                    </figcaption>
+                </figure>
+
+                <figure class="article-figure image-small">
+                    <img src="assets/figures/table_4.png" alt="Graph construction coverage by split">
+                
+                    <figcaption class="article-caption">
+                        <span class="article-caption-title">
+                            <span class="article-caption-label">Table 4.</span>
+                            Graph construction coverage by split.
+                        </span>
+                
+                        <span class="article-caption-text">
+                            Structure-backed examples use real PDB or AlphaFold structures with an 8.0 Å Cα contact cutoff; fallback
+                            examples use sequence-neighborhood graphs constructed from chain order alone. The test split has
+                            substantially lower structure coverage than train or val (45.3% versus 80.6% and 85.9%) meaning the majority
+                            of test examples are evaluated on graphs without real structural information. This asymmetry directly
+                            constrains GNN generalization at evaluation time.
+                        </span>
+                    </figcaption>
+                </figure>
+
+                <figure class="article-figure image-medium">
+                    <img src="assets/figures/gnn_ablation_buried_exposed_ASA.svg"
+                        alt="Structural context ablation showing test performance stratified by residue burial">
+                
+                    <figcaption class="article-caption">
+                        <span class="article-caption-title">
+                            <span class="article-caption-label">Figure 8.</span>
+                            Structural context ablation: test performance stratified by residue burial.
+                        </span>
+                
+                        <span class="article-caption-text">
+                            Examples are split by solvent accessible surface area (ASA) into buried (low ASA) and exposed (high ASA)
+                            subsets. On buried residues, where mutations sit within dense contact networks, the structure-only GNN (V4)
+                            achieves Pearson r=0.81 which substantially outperforms both the best tabular model (r=0.65) and the best
+                            available-graph GNN (r=0.64). On exposed residues, where contact networks are sparser, the tabular model
+                            recovers its advantage (r=0.41 vs r=0.27 for V4). The crossover confirms that graph topology carries
+                            meaningful signal, but only where the structural environment is dense enough for message-passing to capture
+                            non-local effects.
+                        </span>
+                    </figcaption>
+                </figure>
+
+
+
+            </section>
+        
+            <section id="discussion" class="section">
+                <h2>Discussion</h2>
                 <p>
-                    The best full-test model was a condition-aware tabular baseline, while GNN variants remained
-                    competitive and revealed when structural graph information helped or failed to help.
+                    text 
+                </p>
+            </section>
+        
+            <section id="references" class="section">
+                <h2>References</h2>
+                <p>
+                    add
                 </p>
             </section>
         </main>
