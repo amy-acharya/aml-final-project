@@ -124,6 +124,43 @@
             margin-bottom: 8px;
         }
 
+        .article-figure {
+            margin: 56px 0;
+        }
+
+        .article-figure img {
+            width: 100%;
+            height: auto;
+            display: block;
+            background: #ffffff;
+        }
+
+        .article-caption {
+            margin-top: 14px;
+            color: #333;
+            line-height: 1.45;
+        }
+
+        .article-caption-title {
+        display: block;
+        font-size: 17px;
+        font-weight: 700;
+        margin-bottom: 5px;
+        }
+
+        .article-caption-label {
+            font-style: italic;
+            font-weight: 700;
+        }
+
+        .article-caption-text {
+            display: block;
+            font-size: 14.5px;
+            font-weight: 400;
+            font-style: normal;
+            color: #444;
+        }
+
         section {
             margin: 90px 0;
             scroll-margin-top: 50px;
@@ -254,6 +291,25 @@
                     We then represented proteins as residue contact graphs and trained GNN variants that differ in local
                     readout, global pooling, and condition-feature integration.
                 </p>
+
+                <figure class="article-figure">
+                    <img src="assets/figures/table_3_modelcomparison.png"
+                        alt="Test set performance comparison across tabular and GNN models">
+                
+                    <figcaption class="article-caption">
+                        <span class="article-caption-title">
+                            <span class="article-caption-label">Table 3.</span>
+                            Test set performance across all models on the protein-group split (n=503).
+                        </span>
+                
+                        <span class="article-caption-text">
+                            Bold indicates best RMSE and Pearson r. Tabular models operate on flat mutation-level features; GNN models
+                            operate on paired residue contact graphs. Condition-aware models include experimental pH and temperature as
+                            additional features. All GNN results are averaged across 3 random seeds.
+                        </span>
+                    </figcaption>
+                </figure>
+
             </section>
 
             <section id="results" class="section">
