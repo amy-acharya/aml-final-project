@@ -1,0 +1,4 @@
+split,n,structure,sequence_neighborhood_fallback
+train,1509,1217,292
+val,504,433,71
+test,503,228,275

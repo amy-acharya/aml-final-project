@@ -1,0 +1,2 @@
+version,n_seeds,params,best_epoch_mean,train_rmse_mean,val_rmse_mean,test_rmse_mean,test_rmse_std,test_mae_mean,test_r_mean,test_r_std,test_y_true_std,test_y_pred_std_mean,test_pred_std_ratio_mean,test_pred_vs_true_slope_mean,test_residual_vs_true_slope_mean
+V4 structure-only distance-aware GNN,3,20209,8.0,1.645048221695988,1.2066448017132658,1.6265333419251478,0.007904642577759467,1.1591753966340315,0.5307877526469703,0.00839412605877627,1.8440850554768744,0.8269159142408132,0.44841527877735304,0.23786053035292787,-0.7621394696470719
