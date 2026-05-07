@@ -1,0 +1,9 @@
+{
+  "best_cfg": {
+    "max_depth": 6,
+    "learning_rate": 0.05,
+    "n_estimators": 300
+  },
+  "selection_metric": "validation Pearson r",
+  "selected_from": "per-mutation validation split"
+}
