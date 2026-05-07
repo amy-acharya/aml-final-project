@@ -161,6 +161,31 @@
             color: #444;
         }
 
+        .article-figure.wide {
+            max-width: 1100px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .article-figure.medium {
+            max-width: 850px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .article-figure.small {
+            max-width: 650px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .article-figure img {
+            width: 100%;
+            height: auto;
+            display: block;
+            background: #ffffff;
+        }
+
         section {
             margin: 90px 0;
             scroll-margin-top: 50px;
@@ -292,16 +317,14 @@
                     readout, global pooling, and condition-feature integration.
                 </p>
 
-                <figure class="article-figure">
+                <figure class="article-figure medium">
                     <img src="assets/figures/table_3_modelcomparison.png"
                         alt="Test set performance comparison across tabular and GNN models">
-                
                     <figcaption class="article-caption">
                         <span class="article-caption-title">
                             <span class="article-caption-label">Table 3.</span>
                             Test set performance across all models on the protein-group split (n=503).
                         </span>
-                
                         <span class="article-caption-text">
                             Bold indicates best RMSE and Pearson r. Tabular models operate on flat mutation-level features; GNN models
                             operate on paired residue contact graphs. Condition-aware models include experimental pH and temperature as
