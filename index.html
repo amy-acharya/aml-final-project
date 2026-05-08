@@ -202,6 +202,18 @@
             width: 100%;
         }
 
+        .references-list {
+            margin-top: 24px;
+            font-size: 15px;
+            line-height: 1.45;
+        }
+
+        .reference {
+            padding-left: 2em;
+            text-indent: -2em;
+            margin-bottom: 14px;
+        }
+
         section {
             margin: 90px 0;
             scroll-margin-top: 50px;
@@ -314,6 +326,81 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="intro-text">
+                    <p>
+                        From oxygen transport in blood to the signals firing between neurons, every biological process that keeps us
+                        alive is carried out by proteins. This complexity arises from just 20 amino acids, chained into sequences that
+                        fold into precise three-dimensional structures. Proteins don’t act alone: each one must fit precisely into
+                        binding partners, substrates, and signaling networks that depend on its exact shape. A misfolded protein doesn’t
+                        just lose its own function; it can disrupt entire biological pathways
+                        (<a href="https://www.nature.com/articles/nsmb.1591" target="_blank" rel="noopener noreferrer">Hartl &amp;
+                            Hayer-Hartl, 2009</a>;
+                        <a href="https://www.nature.com/articles/nature02261" target="_blank" rel="noopener noreferrer">Dobson,
+                            2003</a>).
+                    </p>
+                
+                    <p>
+                        A single amino acid substitution can propagate effects well beyond the mutation site itself. Predicting the
+                        consequences of such mutations, specifically whether a substitution makes a protein more or less
+                        thermodynamically stable, is captured by the change in Gibbs free energy, or ΔΔG. Loosely, free energy measures
+                        how strongly a system favors one state over another: a protein with a large negative ΔG strongly prefers to stay
+                        folded. ΔΔG then captures how much a mutation shifts that preference, whether the substitution pushed the
+                        protein toward (negative) its functional form or away (positive) from it, and by how much
+                        (<a href="https://iris.unito.it/retrieve/e27ce42d-f5a9-2581-e053-d805fe0acbaa/UpperBoundArxiv.pdf" target="_blank"
+                            rel="noopener noreferrer">Montanucci et al., 2019</a>).
+                    </p>
+                
+                    <p>
+                        The space of possible mutations is exponential: every protein, every position, all 19 possible substitutions.
+                        Experimentally measuring ΔΔG for even a small fraction of that space is slow, expensive, and largely infeasible
+                        at scale. And the effect of any given mutation is not determined by the substitution alone; it depends on the
+                        surrounding amino acid environment, the local secondary structure, and the global three-dimensional fold of the
+                        protein. These properties interact in ways that are not captured by any single feature in isolation. This is
+                        precisely the setting where machine learning becomes a necessary tool. The combinatorial space is too large for
+                        experimental coverage, and the patterns that govern stability are too high-dimensional for any fixed set of
+                        rules to capture. A model that learns those patterns directly from existing experimental data can provide
+                        critical insight across the full combinatorial space.
+                    </p>
+                
+                    <p>
+                        A sequence-only model sees each mutation as a substitution in isolation. It knows <em>what</em> changed, but not
+                        <em>where</em> the mutation sits within the folded protein or which residues surround it in space. A protein’s
+                        three-dimensional structure places residues that are far apart in sequence into direct contact in space. Those
+                        contacts form a network, and a mutation perturbs that network, not just a single node within it. Representing
+                        this structure as a graph makes the spatial dependencies around a mutation site explicit and learnable.
+                        <strong>As our results show, graph topology carries the strongest predictive signal for mutations at buried
+                            residues, where the contact network is densest and non-local structural effects are strongest.</strong>
+                    </p>
+
+                    <figure class="article-figure image-wide">
+                        <iframe src="assets/structure_viewer_pair.html" title="Interactive wild-type versus mutant protein structure viewer"
+                            style="width: 100%; height: 760px; border: none; display: block; background: white;">
+                        </iframe>
+                    
+                        <figcaption class="article-caption">
+                            <span class="article-caption-title">
+                                <span class="article-caption-label">Interactive Figure.</span>
+                                Why structural context matters for mutation prediction.
+                            </span>
+                    
+                            <span class="article-caption-text">
+                                Cytochrome b5 is a small protein whose job is to help move electrons between different cellular partners.
+                                The V45E mutation changes only one amino acid, but in the folded structure that swap sits inside a
+                                neighborhood of nearby residues, and in the mutant structure, this local neighborhood visibly rearranges.
+                                This
+                                illustrates why flat sequence features can miss important information. The same substitution can have
+                                different
+                                effects depending on its 3D surroundings. Our GNN was designed to represent exactly this local contact
+                                network
+                                around the mutation site.
+                            </span>
+                        </figcaption>
+                    </figure>
+
+                </div>
+
+
         
                 <h2>Hypothesis</h2>
                 <p>
@@ -327,25 +414,7 @@
             <section id="existing-approaches" class="section">
                 <h2>Existing Approaches</h2>
 
-                <figure class="article-figure image-wide">
-                    <iframe src="assets/structure_viewer.html" title="Interactive residue contact graph viewer"
-                        style="width: 100%; height: 660px; border: none; display: block; background: white;">
-                    </iframe>
                 
-                    <figcaption class="article-caption">
-                        <span class="article-caption-title">
-                            <span class="article-caption-label">Interactive Figure.</span>
-                            Residue contact graph around a mutation site.
-                        </span>
-                
-                        <span class="article-caption-text">
-                            This lightweight local viewer renders Cα residues and contact edges from an embedded PDB file. The mutation
-                            site is highlighted in red, contacting residues in yellow, and the rest of the chain in blue. Drag to rotate
-                            the structure. This visualization illustrates the structural neighborhood that graph message-passing
-                            attempts to encode.
-                        </span>
-                    </figcaption>
-                </figure>
             
                 <p>
                     Predicting how a mutation affects protein stability has been approached in three ways: energy-based physical
@@ -384,7 +453,7 @@
             
                 <p>
                     Comparing across these methods is further complicated by dataset overlap. Pancotti et al.
-                    <a href="https://academic.oup.com/bib/article/23/2/bbab555/6502552" target="_blank" rel="noopener noreferrer">(2022)</a>
+                    <a href="https://pubmed.ncbi.nlm.nih.gov/35021190/" target="_blank" rel="noopener noreferrer">(2022)</a>
                     showed that published benchmarks in this space are difficult to compare cleanly: many tools were trained or
                     optimized on overlapping datasets, and performance can shift substantially when direct and reverse mutations are
                     evaluated separately. In our own exploratory baseline, we observed this directly, motivating our choice to
@@ -430,7 +499,23 @@
                 </figure>
 
                 <p>
-                    filler text
+                    Our dataset is drawn from ProTherm, a curated collection of experimentally measured thermodynamic parameters for
+                    protein mutations
+                    (<a href="https://ui.adsabs.harvard.edu/abs/2021NucAR..49D.420N/abstract" target="_blank"
+                        rel="noopener noreferrer">Nikam et al., 2021</a>).
+                    Each sample in our dataset represents a single (protein, point mutation) pair with a corresponding experimentally
+                    measured ΔΔG label, split 60/20/20 into training, validation, and test sets by protein group (Fig. 1).
+                </p>
+                
+                <p>
+                    We worked in two phases. For the XGBoost prototype, we restricted to single-point mutations with UniProt-style
+                    annotations, yielding 496 (protein, mutation) pairs across 46 proteins. UniProt records each mutation as [wild-type
+                    amino acid][position in chain][mutant amino acid], for example D44N denoting aspartate (D) at position 44
+                    substituted with asparagine (N)
+                    (<a href="https://pubmed.ncbi.nlm.nih.gov/40331428/" target="_blank" rel="noopener noreferrer">Ahmad et al.,
+                        2025</a>).
+                    For the full GNN pipeline, we expanded to the complete cleaned dataset: 2,516 mutations across 86 protein groups,
+                    split strictly by protein identity to prevent data leakage across train, validation, and test.
                 </p>
 
                 <figure class="article-figure image-medium">
@@ -453,6 +538,33 @@
                         </span>
                     </figcaption>
                 </figure>
+
+                <p>
+                    The XGBoost prototype operates on flat sequence features: changes in hydrophobicity, net charge, and molecular
+                    weight between wild-type and mutant residues, alongside one-hot encodings of the wild-type and mutant amino acid
+                    identities. None of these features predicts ΔΔG reliably in isolation (r &lt; 0.2), and the substitution outcome
+                    depends heavily on structural context that flat features cannot encode (Fig. 2). For the GNN pipeline, each protein
+                    is instead represented as a residue contact graph, with edges drawn between residues whose Cα atoms fall within 8.0
+                    Å. Node features are 34-dimensional, encoding amino acid identity and physicochemical properties; edge features are
+                    11-dimensional, comprising eight Gaussian radial basis functions encoding continuous Cα distance plus three binary
+                    flags indicating whether an edge is sequential, structural, or a sequence-neighborhood fallback used when no PDB or
+                    AlphaFold structure was available. Each amino acid in a protein chain contains a central carbon atom, called the Cα,
+                    that anchors its backbone. Measuring distances between Cα gives a consistent, structure-agnostic way to define which
+                    residues are spatially close regardless of differences in side-chain size or orientation.
+                </p>
+                
+                <p>
+                    We evaluate all models using two complementary metrics: Pearson correlation coefficient r, which measures how well
+                    predicted ΔΔG values rank mutations relative to one another, and root mean squared error (RMSE) in kcal/mol, which
+                    measures absolute prediction error in physical units. Pearson r is the field-standard metric for this task;
+                    published tools typically achieve r=0.2–0.5 on held-out test sets
+                    (<a href="https://pubmed.ncbi.nlm.nih.gov/35021190/" target="_blank" rel="noopener noreferrer">Pancotti et al.,
+                        2022</a>).
+                    An RMSE of approximately 1.0 kcal/mol represents the practical lower bound given experimental noise in the
+                    underlying measurements
+                    (<a href="https://iris.unito.it/retrieve/e27ce42d-f5a9-2581-e053-d805fe0acbaa/UpperBoundArxiv.pdf" target="_blank"
+                        rel="noopener noreferrer">Montanucci et al., 2019</a>).
+                </p>
 
 
             </section>
@@ -479,9 +591,13 @@
                     </figcaption>
                 </figure>
 
-
                 <p>
-                    add text
+                    We began with XGBoost on the smaller UniProt-only subset as a controlled environment to understand both the learning
+                    problem and how split strategy, discussed by Pancotti et al., affects performance
+                    (<a href="https://pubmed.ncbi.nlm.nih.gov/35021190/" target="_blank" rel="noopener noreferrer">2022</a>).
+                    XGBoost is a collection of shallow decision trees, and was specifically chosen by our group because it efficiently
+                    captures nonlinear interactions between flat features without requiring structural information. We thought this
+                    would be a meaningful test of how far sequence-level physicochemical features can go (Fig. 3).
                 </p>
 
                 <figure class="article-figure image-small">
@@ -523,6 +639,18 @@
                     </figcaption>
                 </figure>
 
+                <p>
+                    We found that one of the most important methodological questions we faced wasn't which model to use, but how to split our data. A
+                    <strong>per-mutation split</strong> distributes each protein’s mutations proportionally across train, validation,
+                    and test, meaning the model sees other mutations from the same proteins during training. A <strong>protein-level
+                        split</strong> holds out entire proteins, requiring the model to generalize to structures it has never seen.
+                    Pancotti et al. showed that most published ΔΔG benchmarks are inflated by exactly this kind of within-protein
+                    leakage, and we observed it directly as well
+                    (<a href="https://pubmed.ncbi.nlm.nih.gov/35021190/" target="_blank" rel="noopener noreferrer">2022</a>).
+                    The per-mutation split yielded a test Pearson r of 0.417 with clean training convergence, suggesting a well-behaved
+                    model, while the protein-level split diverged (Table 1, Fig. 4).
+                </p>
+
                 <figure class="article-figure image-small">
                     <img src="assets/figures/table_2.png"
                         alt="Final XGBoost evaluation table under per-mutation and protein-level splits">
@@ -541,6 +669,26 @@
                         </span>
                     </figcaption>
                 </figure>
+
+                <p>
+                    Under protein-level splitting, validation RMSE plateaued immediately near 3.2 kcal/mol while training RMSE continued
+                    to fall, with early stopping triggering at round 13 (Fig. 3). The model had nothing transferable to offer unseen
+                    proteins. Test performance dropped to r=0.206 (Table 2). We realized that this was not a tuning failure, but
+                    reflected the biological problem we were exploring. Physicochemical features encode what changed in a substitution
+                    but carry no information about where the mutation sits within the folded structure, which contacts it disrupts, or
+                    how its effects propagate through the surrounding residue network. No hyperparameter adjustment would be able to
+                    provide information that the features do not contain. Notably, protein-level validation performance (r=0.072) fell
+                    below test performance (r=0.206), which was likely an artifact of the small dataset. With only 46 proteins, both the
+                    validation and test sets contained roughly 9 proteins each, making estimates highly sensitive to which proteins were
+                    assigned to each split by chance. This motivated our expansion to the larger dataset for our GNN model
+                    implementation.
+                </p>
+                
+                <p>
+                    The gap between per-mutation (r=0.417) and protein-level (r=0.206) performance was the central finding of our
+                    prototype. Knowing which amino acid was substituted isn’t enough; the model might also need to know where the
+                    mutation sits within the protein’s contact network and what it disrupts structurally.
+                </p>
 
             </section>
         
@@ -572,28 +720,30 @@
                 </figure>
                 
                 <p>
-                    text
+                    Our model represents each protein as a residue contact graph, where each node is a 34-dimensional feature vector
+                    encoding amino acid identity and physicochemical properties, and each edge is an 11-dimensional feature vector
+                    encoding Cα distances and edge type. ProTherm aggregates measurements from many experimental sources, and while
+                    every entry has mutation and stability data, not every protein has a corresponding resolved three-dimensional
+                    structure. Rather than discarding those entries (which would have substantially reduced our already limited
+                    dataset), we built a graph strategy. When a real PDB or AlphaFold structure exists, edges reflect true spatial
+                    contacts. When no structure is available, we fall back to a sequence-based neighborhood graph that connects residues
+                    by chain order as a proxy. This lets the model train on the full dataset while being honest about what kind of
+                    structural information each example actually contains. This distinction was directly encoded in the edge feature
+                    vectors as an edge-type flag.
+                </p>
+                
+                <p>
+                    The model processes a pair of input graphs, one for the wild-type amino acid sequence and one with the mutation
+                    applied, through a shared GINEConv encoder implemented in PyTorch Geometric. GINEConv is a message-passing
+                    architecture that is edge-aware: at each layer, every residue updates its representation by aggregating information
+                    from its spatial neighbors, weighted by the properties of the connecting edges. After two rounds of message-passing,
+                    the embedding at the mutation site is extracted from each graph. This is not a global average, but the specific node
+                    that changed. Their difference, ΔZ = z<sub>WT</sub> − z<sub>MUT</sub>, is passed to a two-layer MLP to regress ΔΔG
+                    (Fig. 5). If a mutation’s thermodynamic effect depends on its structural neighborhood, then we expected the
+                    difference between how that neighborhood looks before and after the swap to carry the predictive signal.
                 </p>
 
-                <figure class="article-figure image-wide">
-                    <iframe src="assets/structure_viewer_pair.html" title="Interactive wild-type versus mutant protein structure viewer"
-                        style="width: 100%; height: 760px; border: none; display: block; background: white;">
-                    </iframe>
                 
-                    <figcaption class="article-caption">
-                        <span class="article-caption-title">
-                            <span class="article-caption-label">Interactive Figure.</span>
-                            Wild-type versus mutant protein structure for Cytochrome b5 (V45E).
-                        </span>
-                
-                        <span class="article-caption-text">
-                            Side-by-side ribbon visualization of the wild-type reference structure (1CYO) and experimentally solved
-                            mutant structure (1LQX). The mutation site is highlighted directly on each structure, and nearby residues
-                            are shown as sticks. This gives a more intuitive structural picture of the local environment that
-                            graph-based models attempt to encode.
-                        </span>
-                    </figcaption>
-                </figure>
 
                 <figure class="article-figure image-medium">
                     <img src="assets/figures/table_3_modelcomparison.png"
@@ -612,6 +762,61 @@
                         </span>
                     </figcaption>
                 </figure>
+
+                <p>
+                    We designed four GNN variants, each adding exactly one source of information so that the results isolate how
+                    different questions interact with our core GNN architecture (Table 3).
+                </p>
+                
+                <ul>
+                    <li>
+                        <strong>V1</strong> uses only the mutation-site Δ embedding, the bare structural signal from the contact graph,
+                        with no additional inputs. This was our baseline question: does graph topology alone carry predictive value
+                        before anything else is added?
+                    </li>
+                    <li>
+                        <strong>V2</strong> adds experimental condition features, specifically pH and temperature, directly to the MLP
+                        head. Previous literature has shown that the same mutation measured at different pH or temperature conditions
+                        can yield meaningfully different ΔΔG values, and ProTherm aggregates measurements across many experimental
+                        settings (<a href="https://pubmed.ncbi.nlm.nih.gov/35021190/" target="_blank" rel="noopener noreferrer">Pancotti
+                            et al., 2022</a>). This ablation tests whether knowing the biochemical conditions under which ΔΔG was
+                        measured improves predictions on top of the graph signal.
+                    </li>
+                    <li>
+                        <strong>V3</strong> further adds a global mean-pooled embedding of the entire graph alongside the local
+                        mutation-site Δ, asking whether the whole-protein context beyond the immediate structural neighborhood carries
+                        additional signal.
+                    </li>
+                    <li>
+                        <strong>V4</strong> takes the opposite approach and is trained exclusively on structure-backed examples with no
+                        condition features at all. This is the cleanest test of what pure structural signal can achieve, and is free
+                        from experimental metadata or fallback graph noise.
+                        <ul>
+                            <li>
+                                V2 asks if conditions help on top of structure, and V4 asks if structure alone is sufficient when the
+                                graph quality is guaranteed.
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+                
+                <p>
+                    Alongside the GNN variants, we trained different tabular baselines on the same split as a rigorous lower bound.
+                    Ridge regression, ElasticNet, and HistGradientBoosting each operate on flat feature vectors with no graph structure,
+                    making them a direct measure of how much predictive signal lives in mutation-level features and experimental
+                    conditions alone. We tested each in two modes: <em>mutation-only</em>, using only physicochemical features of the
+                    substitution, and <em>condition-aware</em>, adding experimental pH and temperature. The condition-aware mode
+                    directly probes how much of the variance in ProTherm is explained by experimental setting rather than molecular
+                    mechanism, which was an important distinction given how heterogeneous the database’s measurement conditions are.
+                </p>
+                
+                <p>
+                    HistGradientBoosting was especially useful in our analysis. Unlike XGBoost, which builds trees sequentially by
+                    correcting residuals, HistGradientBoosting bins continuous features into histograms before splitting, making it more
+                    efficient and better regularized on larger datasets. On the full 2,516-example dataset it proved a substantially
+                    stronger baseline than XGBoost. We found that this result was strong enough that it became the higher-performing
+                    model, directly complicating our original hypothesis.
+                </p>
 
                 <figure class="article-figure">
                     <img src="assets/figures/gnn_main1_rmse_corr.svg"
@@ -633,6 +838,20 @@
                     </figcaption>
                 </figure>
 
+                <p>
+                    The condition-aware HistGradientBoosting model achieves the lowest test RMSE of any model (1.520 kcal/mol), while
+                    V4, the structure-only GNN, achieves the highest Pearson r (0.531) (Fig. 6). These are different models, and the
+                    metrics are sensitive to different aspects of their behavior, so this divergence was a central finding of our
+                    project.
+                </p>
+                
+                <p>
+                    Adding experimental conditions to the tabular model lifted Pearson r from 0.311 to 0.496, a larger gain than any
+                    architectural change we made to the GNN. Knowing the pH and temperature at which a mutation’s stability was measured
+                    turns out to explain more variance in ProTherm than the spatial contact network does; not because structure is
+                    uninformative, but because condition heterogeneity dominates this particular dataset.
+                </p>
+
                 <figure class="article-figure image-medium">
                     <img src="assets/figures/gnn_main2_prediction_behavior.svg"
                         alt="Prediction behavior of the best tabular model and best available-graph GNN on the protein-group test split">
@@ -653,6 +872,15 @@
                     </figcaption>
                 </figure>
 
+                <p>
+                    We probed this further, and found that the GNN’s predictions are systematically compressed towards the mean (prediction
+                    spread ratio is 0.34 compared to 0.46 for the tabular model). It covers only a third of the true ΔΔG range. A models
+                    that is compressed towards the center will rank mutations reasonably well, preserving Pearson r, but incur large
+                    absolute errors on extreme cases, inflating RMSE. Both models also show a negative residual slope, systematically
+                    under-predicting large destabilizing mutations, although this effect is more pronounced in the GNN (Fig. 7).
+
+                </p>
+
                 <figure class="article-figure image-small">
                     <img src="assets/figures/table_4.png" alt="Graph construction coverage by split">
                 
@@ -671,6 +899,17 @@
                         </span>
                     </figcaption>
                 </figure>
+
+                <p>
+                    A key reason the GNN does not outperform the tabular model overall is visible in the graph construction coverage. While
+                    80.6% of training examples and 85.9% of validation examples were built from real PDB or AlphaFold structures, only 45.3%
+                    of test examples had real structures available (Table 4). This asymmetry was an honest consequence of strict
+                    protein-group holdout: the test set happened to contain a higher proportion of proteins without resolved structures,
+                    which is precisely the condition a real deployment would face. A GNN trained mostly on structural edges but evaluated
+                    mostly on sequence-order proxies cannot demonstrate its full potential. V4's comparatively strong Pearson r, despite
+                    being trained on the most restricted subset, is consistent with this: when structure quality is guaranteed, the graph
+                    signal is real.
+                </p>
 
                 <figure class="article-figure image-medium">
                     <img src="assets/figures/gnn_ablation_buried_exposed_ASA.svg"
@@ -694,8 +933,20 @@
                     </figcaption>
                 </figure>
 
+                <p>
+                    The buried vs. exposed stratification is where our hypothesis is most directly tested. When we split the test set by how
+                    deeply a residue is buried within the folded structure (solvent accessible surface area), the GNN’s advantage became
+                    unambiguous. V4, the structure-only GNN trained exclusively on real structural contacts, achieves Pearson r=0.81 on
+                    buried residues compared to r=0.65 for the best tabular model (Fig. 9). For mutations at the protein's core, where
+                    residues sit within dense contact networks and structural effects propagate through many spatial neighbors, the graph
+                    genuinely outperforms flat features. On exposed residues, this reverses: contact networks are sparser, condition effects
+                    dominate, and the tabular model outperforms.
+                </p>
 
-
+                <p>
+                    Our original hypothesis was partially correct; structure matters and message-passing captures it, but this is only where
+                    the contact network is dense enough to outweigh experimental condition heterogeneity and imperfect graph coverage.
+                </p>
             </section>
         
             <section id="discussion" class="section">
@@ -707,9 +958,98 @@
         
             <section id="references" class="section">
                 <h2>References</h2>
-                <p>
-                    add
-                </p>
+            
+                <div class="references-list">
+                    <p class="reference">
+                        Ahmad, S., Jose da Costa Gonzales, L., Bowler-Barnett, E. H., Rice, D. L., Kim, M., Wijerathne, S., Luciani,
+                        A., Kandasaamy, S., Luo, J., Watkins, X., Turner, E., Martin, M. J., &amp; UniProt Consortium. (2025). The
+                        UniProt website API: facilitating programmatic access to protein knowledge. <em>Nucleic Acids Research,
+                            53</em>(W1), W547–W553. <a href="https://doi.org/10.1093/nar/gkaf394" target="_blank"
+                            rel="noopener noreferrer">https://doi.org/10.1093/nar/gkaf394</a>
+                    </p>
+            
+                    <p class="reference">
+                        Blaabjerg, L. M., Kassem, M. M., Good, L. L., Jonsson, N., Cagiada, M., Johansson, K. E., Boomsma, W.,
+                        Stein, A., &amp; Lindorff-Larsen, K. (2023). Rapid protein stability prediction using deep learning
+                        representations. <em>eLife, 12</em>, e82593. <a href="https://doi.org/10.7554/eLife.82593" target="_blank"
+                            rel="noopener noreferrer">https://doi.org/10.7554/eLife.82593</a>
+                    </p>
+            
+                    <p class="reference">
+                        Cao, H., Wang, J., He, L., Qi, Y., &amp; Zhang, J. Z. (2019). DeepDDG: Predicting the stability change of
+                        protein point mutations using neural networks. <em>Journal of Chemical Information and Modeling, 59</em>(4),
+                        1508–1514. <a href="https://doi.org/10.1021/acs.jcim.8b00697" target="_blank"
+                            rel="noopener noreferrer">https://doi.org/10.1021/acs.jcim.8b00697</a>
+                    </p>
+            
+                    <p class="reference">
+                        Diaz, D. J., Gong, C., Ouyang-Zhang, J., et al. (2024). Stability Oracle: A structure-based
+                        graph-transformer framework for identifying stabilizing mutations. <em>Nature Communications, 15</em>, 6170.
+                        <a href="https://doi.org/10.1038/s41467-024-49780-2" target="_blank"
+                            rel="noopener noreferrer">https://doi.org/10.1038/s41467-024-49780-2</a>
+                    </p>
+            
+                    <p class="reference">
+                        Dobson, C. M. (2003). Protein folding and misfolding. <em>Nature, 426</em>, 884–890. <a
+                            href="https://www.nature.com/articles/nature02261" target="_blank"
+                            rel="noopener noreferrer">https://www.nature.com/articles/nature02261</a>
+                    </p>
+            
+                    <p class="reference">
+                        Hartl, F. U., &amp; Hayer-Hartl, M. (2009). Converging concepts of protein folding in vitro and in vivo.
+                        <em>Nature Structural &amp; Molecular Biology, 16</em>, 574–578. <a
+                            href="https://www.nature.com/articles/nsmb.1591" target="_blank"
+                            rel="noopener noreferrer">https://www.nature.com/articles/nsmb.1591</a>
+                    </p>
+            
+                    <p class="reference">
+                        Henikoff, S., &amp; Henikoff, J. G. (1992). Amino acid substitution matrices from protein blocks.
+                        <em>Proceedings of the National Academy of Sciences, 89</em>, 10915–10919. <a
+                            href="https://compbio.berkeley.edu/class/c246/Reading/henikoff-1992-pnas.pdf" target="_blank"
+                            rel="noopener noreferrer">https://compbio.berkeley.edu/class/c246/Reading/henikoff-1992-pnas.pdf</a>
+                    </p>
+            
+                    <p class="reference">
+                        Jumper, J., Evans, R., Pritzel, A., et al. (2021). Highly accurate protein structure prediction with
+                        AlphaFold. <em>Nature, 596</em>, 583–589. <a href="https://doi.org/10.1038/s41586-021-03819-2"
+                            target="_blank" rel="noopener noreferrer">https://doi.org/10.1038/s41586-021-03819-2</a>
+                    </p>
+            
+                    <p class="reference">
+                        Montanucci, L., Martelli, P. L., Ben-Tal, N., &amp; Fariselli, P. (2019). A natural upper bound to the
+                        accuracy of predicting protein stability changes upon mutations. <em>Bioinformatics, 35</em>(9), 1513–1517.
+                        <a href="https://doi.org/10.1093/bioinformatics/bty880" target="_blank"
+                            rel="noopener noreferrer">https://doi.org/10.1093/bioinformatics/bty880</a>
+                    </p>
+            
+                    <p class="reference">
+                        Nikam, R., Kulandaisamy, A., Harini, K., Sharma, D., &amp; Gromiha, M. M. (2020). ProThermDB: Thermodynamic
+                        database for proteins and mutants revisited after 15 years. <em>Nucleic Acids Research, 49</em>(D1). <a
+                            href="https://academic.oup.com/nar/article/49/D1/D420/5983626" target="_blank"
+                            rel="noopener noreferrer">https://academic.oup.com/nar/article/49/D1/D420/5983626</a>
+                    </p>
+            
+                    <p class="reference">
+                        Nisthal, A., Wang, C. Y., Ary, M. L., &amp; Mayo, S. L. (2019). Protein stability engineering insights
+                        revealed by domain-wide comprehensive mutagenesis. <em>Proceedings of the National Academy of Sciences</em>.
+                        <a href="https://doi.org/10.1073/pnas.1903888116" target="_blank"
+                            rel="noopener noreferrer">https://doi.org/10.1073/pnas.1903888116</a>
+                    </p>
+            
+                    <p class="reference">
+                        Pancotti, C., Benevenuta, S., Birolo, G., Alberini, V., Repetto, V., Sanavia, T., Capriotti, E., &amp;
+                        Fariselli, P. (2022). Predicting protein stability changes upon single-point mutation: A thorough comparison
+                        of the available tools on a new dataset. <em>Briefings in Bioinformatics, 23</em>(2). <a
+                            href="https://doi.org/10.1093/bib/bbab555" target="_blank"
+                            rel="noopener noreferrer">https://doi.org/10.1093/bib/bbab555</a>
+                    </p>
+            
+                    <p class="reference">
+                        Pauling, L., &amp; Itano, H. A. (1949). Sickle cell anemia, a molecular disease. <em>Science,
+                            110</em>(2865), 543–548. <a href="https://pubmed.ncbi.nlm.nih.gov/15395398/" target="_blank"
+                            rel="noopener noreferrer">https://pubmed.ncbi.nlm.nih.gov/15395398/</a>
+                    </p>
+                </div>
             </section>
         </main>
     </div>

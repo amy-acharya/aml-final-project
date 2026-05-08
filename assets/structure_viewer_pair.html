@@ -60,6 +60,12 @@
       background: #fcfcfc;
     }
 
+    html, body {
+      margin: 0;
+      background: #ffffff;
+      overflow: hidden;
+    }
+
     .panel-title {
       font-size: 19px;
       font-weight: 700;
@@ -144,7 +150,7 @@
     <div class="header">
       <h1 class="title">Wild-Type vs Mutant Protein Structure</h1>
       <p class="subtitle">
-        Cytochrome b5 example. Mutation <strong>V45E</strong> shown as a side-by-side ribbon comparison of the wild-type reference structure (<strong>1CYO</strong>) and experimentally solved mutant structure (<strong>1LQX</strong>). Each structure can be rotated and zoomed independently.
+        Cytochrome b5 example. Mutation <strong>V45E</strong> shown as a side-by-side ribbon comparison of the wild-type reference structure (<strong>1CYO</strong>) and experimentally solved mutant structure (<strong>1LQX</strong>). Drag to rotate and scroll to zoom.
       </p>
       <div class="legend">
         <div class="legend-item"><span class="swatch" style="background:#6bd64a;"></span> WT mutation-site residue</div>
@@ -181,9 +187,6 @@
       </div>
     </div>
 
-    <div class="footer">
-      Drag to rotate and scroll to zoom. This viewer is fully local: the structure coordinates are embedded directly into the HTML and rendered with a local copy of 3Dmol.js.
-    </div>
   </div>
 
   <script>
