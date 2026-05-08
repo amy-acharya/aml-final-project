@@ -5,6 +5,12 @@ This repository contains our Applied Machine Learning final project. We study wh
 
 Our central motivating question was if residue contact graphs add useful structural information for ΔΔG prediction beyond mutation-level and condition-aware flat features. 
 
+```text
+index.html
+
+To render our project site locally: clone or download this repository, open the repository folder, and open index.html in Google Chrome. 
+
+
 ## Project Overview
 A single amino acid mutation can stabilize or destabilize a protein. We model this as a supervised regression problem:
 
