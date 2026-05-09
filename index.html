@@ -174,7 +174,7 @@
         }
 
         .article-figure.small {
-            max-width: 450px;
+            max-width: 250px;
             margin-left: auto;
             margin-right: auto;
         }
@@ -330,7 +330,7 @@
 <body>
     <nav class="sidebar">
         <div class="sidebar-project-title">Fold or Fail</div>
-        <div class="sidebar-project-subtitle">Protein stability from mutations</div>
+        <div class="sidebar-project-subtitle">Predicting protein stability from mutations</div>
     
         <div class="sidebar-title">Sections</div>
         <a href="#hypothesis" class="active">Hypothesis</a>
@@ -884,7 +884,7 @@
                     our original hypothesis and motivating the burial-stratified analysis that follows.
                 </p>
                 
-                <figure class="article-figure image-small"></figure>
+                <figure class="article-figure image-small">
                     <img src="assets/figures/table_4.png" alt="Graph construction coverage by split">
                 
                     <figcaption class="article-caption">
@@ -894,11 +894,16 @@
                         </span>
                 
                         <span class="article-caption-text">
-                            Structure-backed examples use real PDB or AlphaFold structures with an 8.0 Å Cα contact cutoff; fallback examples use
-                            sequence-neighborhood graphs constructed from chain order alone. The test split has substantially lower structure
-                            coverage than train or val (45.3% versus 80.6% and 85.9%) meaning the majority of test examples are evaluated on graphs
-                            without real structural information. This asymmetry directly constrains GNN generalization at evaluation time. In V4, we
-                            address this by filtering proteins. However, note that V4’s test set, while similar in size, is not identical to the
+                            Structure-backed examples use real PDB or AlphaFold structures with an 8.0 Å Cα contact cutoff; fallback
+                            examples use
+                            sequence-neighborhood graphs constructed from chain order alone. The test split has substantially lower
+                            structure
+                            coverage than train or val (45.3% versus 80.6% and 85.9%) meaning the majority of test examples are
+                            evaluated on graphs
+                            without real structural information. This asymmetry directly constrains GNN generalization at evaluation
+                            time. In V4, we
+                            address this by filtering proteins. However, note that V4’s test set, while similar in size, is not
+                            identical to the
                             tabular baseline test set; cross-model comparisons should be interpreted accordingly.
                         </span>
                     </figcaption>
@@ -936,7 +941,7 @@
                     </figcaption>
                 </figure>
                 
-                <figure class="article-figure image-medium"></figure>
+                <figure class="article-figure image-medium">
                     <img src="assets/figures/gnn_main2_prediction_behavior.svg"
                         alt="Prediction behavior of the best tabular model and best available-graph GNN on the protein-group test split">
                 
@@ -949,8 +954,10 @@
                 
                         <span class="article-caption-text">
                             Top: predicted vs. true ΔΔG. Bottom: residuals vs. true ΔΔG. Both models systematically under-predict large
-                            destabilizing mutations (negative residual slope of -0.77 and -0.85 respectively). The GNN's prediction spread ratio
-                            (0.34) is substantially narrower than the tabular model's (0.46), compressing predictions toward the mean and inflating
+                            destabilizing mutations (negative residual slope of -0.77 and -0.85 respectively). The GNN's prediction
+                            spread ratio
+                            (0.34) is substantially narrower than the tabular model's (0.46), compressing predictions toward the mean
+                            and inflating
                             RMSE relative to Pearson r.
                         </span>
                     </figcaption>
@@ -1011,8 +1018,96 @@
         
             <section id="discussion" class="section">
                 <h2>Discussion</h2>
+
                 <p>
-                    text 
+                    Our results refine the original hypothesis rather than overturn it. Across the full test set, the GNN did not outperform
+                    the strongest tabular baseline, but its best-performing cases aligned closely with the scenarios where structural
+                    context should matter most. The condition-aware HistGradientBoosting model achieved the lowest RMSE, highlighting how
+                    strongly pH and temperature influence variation within ProTherm. This is important because ProTherm is not a single
+                    standardized experiment; it aggregates measurements collected across different proteins, laboratories, and experimental
+                    conditions. As a result, part of the prediction task involves learning experimental context in addition to protein
+                    structure. In that setting, a tabular model with explicit condition features has a clear advantage.
+                </p>
+
+                <p>
+                    The main limitation of the GNN was not an absence of structural learning, but the inconsistency of the structural signal
+                    available across the dataset. Many test examples relied on sequence-neighborhood fallback graphs, where edges reflected
+                    chain adjacency rather than genuine 3D residue contacts. This mismatch in graph quality complicated interpretation of
+                    the full-dataset GNN results and likely contributed to the models failing to consistently outperform the condition-aware
+                    tabular baseline.
+                </p>
+
+                <p>
+                    The strongest evidence for the value of the GNN came from the structure-only and burial-stratified analyses. V4, which
+                    was trained exclusively on examples with real structural graphs, produced the best GNN performance overall. On buried
+                    residues, V4 achieved a Pearson correlation of r = 0.81, compared with r = 0.65 for the best tabular model. This aligns
+                    with the biological motivation behind the project: buried mutations exist within dense structural contact networks, so
+                    their effects are often influenced by nearby residues in 3D space, including residues that may be distant in primary
+                    sequence. A graph model can explicitly capture those relationships. In contrast, the advantage disappeared for exposed
+                    residues, where the tabular model performed better. Exposed sites generally have sparser contact neighborhoods, reducing
+                    the amount of structural information available for the GNN to exploit.
+                </p>
+
+                <h3>Ethics</h3>
+                <p>
+                    The biggest ethical concern is that a model like this could be mistaken for a reliable biological decision tool when it
+                    is really a limited predictor trained on uneven experimental data. A wrong ΔΔG estimate could matter if someone used it
+                    to judge whether a mutation is harmless, disease-related, or worth testing in a lab. Our model is especially risky for
+                    that because it tends to soften extreme predictions, which could make strongly destabilizing mutations look less serious
+                    than they are. The model is also better supported for proteins and mutation types that are well represented in existing
+                    databases, while less-studied proteins may get weaker predictions without that uncertainty being obvious.
+                </p>
+
+                <h3>Next Steps</h3>
+                <p>
+                    With three more months, the main goal would be to move this project from a working modeling pipeline to something
+                    cleaner, more usable, and more biologically interpretable. Our current results show that structural information can
+                    improve ΔΔG prediction, especially for buried residues where local contacts matter most. However, the project is still
+                    limited by how difficult it is to run the model on new mutations, how much curated data is available, and how much of
+                    the structural visualization is based on wild-type rather than mutant protein structures.
+                </p>
+                <p>
+                    First, we would make the model easier for other people to implement. Right now, the pipeline works for our curated
+                    dataset, but it is not yet something a user could easily apply to a new protein. A major next step would be building an
+                    interactive interface where a user could enter a wild-type amino acid, choose a mutation, and receive the predicted ΔΔG.
+                    This would make the model more useful beyond our benchmark because it would allow someone to test a mutation directly
+                    instead of only reading aggregate model results. Ideally, the interface would also allow optional inputs like pH and
+                    temperature, since our results showed that experimental conditions explain a meaningful amount of variation in ProTherm.
+                </p>
+                <p>
+                    Second, we would continue expanding the dataset. This is a common limitation in machine learning projects, but it is
+                    especially important here because protein stability data is sparse, uneven, and experimentally heterogeneous. More
+                    mutation-stability measurements would help the model learn from a wider range of proteins, mutation types, and ΔΔG
+                    values. It would also help address one of our most problematic model behaviors: prediction shrinkage toward the mean.
+                    With more examples of strongly stabilizing and strongly destabilizing mutations, the model would have a better chance of
+                    learning extreme effects instead of predicting values that are too conservative.
+                </p>
+                <p>
+                    Third, we would improve the protein visualization component through AlphaFold or ColabFold. In the current version,
+                    visualization is mostly based on structures we already have, and in many cases those structures represent only the
+                    wild-type protein. This means we can show where a mutation occurs, but we cannot fully show how that mutation changes
+                    the folded structure. There are select cases where we, luckily, have both wild-type and mutant protein structures, which
+                    allows us to visualize both wild-type and mutant structures without needing to generate the mutant structures ourselves.
+                    With more time, however, we strive to generate predicted mutant structures, possibly through ColabFold or another
+                    program, and display them alongside the wild-type structure. This would let users compare the two directly and see
+                    whether the mutation appears to change local contacts, residue packing, or overall folding. Even if these predicted
+                    structures would still need to be interpreted cautiously, they would make the project much more connected to the
+                    biological question we are asking.
+                </p>
+                <p>
+                    Finally, we would make the entire model pipeline cleaner and more reproducible. Our project combined data cleaning,
+                    structure lookup, graph construction, model training, evaluation, and visualization. Each part worked, but the full
+                    pipeline could be made easier to run and easier to modify. With more time, we would organize the code so that a user
+                    could move from mutation input to structure retrieval to ΔΔG prediction in a more direct way. This would also make
+                    future improvements easier, whether that means adding more data, changing the graph construction strategy, or testing
+                    new model architectures.
+                </p>
+                <p>
+                    Overall, the next phase would focus on turning this project into a more practical tool. The model would not just
+                    evaluate mutations from an existing dataset; it would let users input new mutations, generate predicted stability
+                    changes, visualize wild-type and mutant structures, and run the full pipeline in a cleaner and more reproducible way. In
+                    brief, the long-term goal would be to turn this project into an accessible and reproducible program for predicting how
+                    mutations affect protein stability.
                 </p>
             </section>
         
