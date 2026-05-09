@@ -140,8 +140,6 @@ aml-final-project/
 
 ## Python Requirements
 
-## Python Requirements
-
 The HTML blog itself does not require Python. It only requires opening `index.html` in Chrome.
 
 To run the figure reproduction notebook:
