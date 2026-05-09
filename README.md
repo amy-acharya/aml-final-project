@@ -179,7 +179,7 @@ These files allow the final figures to be regenerated without rerunning expensiv
 
 ## Interactive Structure Viewers
 
-The website includes local interactive visualizations:
+The website includes local interactive visualizations. This shows one protein example using embedded PDB coordinates. 
 
 ```text
 assets/structure_viewer.html
@@ -191,5 +191,3 @@ These use a local vendored copy of:
 ```text
 assets/js/3Dmol-min.js
 ```
-
-The side-by-side protein viewer shows the Cytochrome b5 V45E example using embedded PDB coordinates, so it does not need to fetch structures from the internet at render time.
