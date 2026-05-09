@@ -140,28 +140,14 @@ aml-final-project/
 
 ## Python Requirements
 
-To run `03_reproduce_blog_figures.ipynb`, install:
-
-```text
-numpy
-pandas
-matplotlib
-seaborn
-scipy
-scikit-learn
-```
-
-Full GNN training in `02_gnn_final_model.ipynb` additionally requires:
-
-```text
-torch
-torch-geometric
-biopython
-requests
-tqdm
-```
+## Python Requirements
 
 The HTML blog itself does not require Python. It only requires opening `index.html` in Chrome.
+
+To run the figure reproduction notebook:
+
+```bash
+pip install numpy pandas matplotlib seaborn scipy scikit-learn
 
 ## Model Variants
 
@@ -206,16 +192,3 @@ assets/js/3Dmol-min.js
 ```
 
 The side-by-side protein viewer shows the Cytochrome b5 V45E example using embedded PDB coordinates, so it does not need to fetch structures from the internet at render time.
-
-## Notes
-
-Local virtual environments and large temporary caches should not be committed:
-
-```text
-.venv/
-.venv_gnn/
-gnn_cache/
-__pycache__/
-.ipynb_checkpoints/
-.DS_Store
-```
