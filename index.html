@@ -793,20 +793,7 @@
                     error between predicted and experimentally measured ΔΔG values. As we discuss later, this choice likely contributes to
                     the prediction shrinkage we observe.
 
-                </p>
-                
-                <p>
-                    The model processes a pair of input graphs, one for the wild-type amino acid sequence and one with the mutation
-                    applied, through a shared GINEConv encoder implemented in PyTorch Geometric. GINEConv is a message-passing
-                    architecture that is edge-aware: at each layer, every residue updates its representation by aggregating information
-                    from its spatial neighbors, weighted by the properties of the connecting edges. After two rounds of message-passing,
-                    the embedding at the mutation site is extracted from each graph. This is not a global average, but the specific node
-                    that changed. Their difference, ΔZ = z<sub>WT</sub> − z<sub>MUT</sub>, is passed to a two-layer MLP to regress ΔΔG
-                    (Fig. 5). If a mutation’s thermodynamic effect depends on its structural neighborhood, then we expected the
-                    difference between how that neighborhood looks before and after the swap to carry the predictive signal.
-                </p>
-
-                
+                </p>   
 
                 <figure class="article-figure image-medium">
                     <img src="assets/figures/table_3_modelcomparison.png"
