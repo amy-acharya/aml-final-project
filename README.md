@@ -172,7 +172,7 @@ The final GNN notebook evaluates four GNN variants:
 - **V3:** local graph embedding plus global graph pooling plus condition features
 - **V4:** structure-only GNN evaluated on structure-backed examples only
 
-V4 is not strictly apples-to-apples with V1–V3 because it uses a smaller subset of examples with real structure-backed graphs.
+V4 is not strictly comparable with V1–V3 because it uses a smaller subset of examples with real structure-backed graphs.
 
 ## Saved Outputs
 
