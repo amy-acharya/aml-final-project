@@ -148,6 +148,7 @@ To run the figure reproduction notebook:
 
 ```bash
 pip install numpy pandas matplotlib seaborn scipy scikit-learn
+```
 
 ## Model Variants
 
